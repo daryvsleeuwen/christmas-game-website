@@ -1,0 +1,1 @@
+<h1>Svelte client</h1>
