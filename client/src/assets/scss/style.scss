@@ -1,0 +1,14 @@
+// @import "../bootstrap/grid.min.css";
+// @import "../bootstrap/utilities.min.css";
+@import "vars";
+@import "typography";
+
+body{
+  width: 100vw;
+  font-size: 16px;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+}
