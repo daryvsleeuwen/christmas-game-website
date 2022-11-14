@@ -1,12 +1,19 @@
 <script>
     import Button from "../components/button.svelte";
+    import Popup from "../components/popup.svelte";
+
+    let openGamesRulesPopup = false;
 
     const startNewGame = () =>{
 
     }
 
-    const showGameRules = () =>{
+    const openGameRulesPopup = () =>{
+        openGamesRulesPopup = true
+    }
 
+    const closeGameRulesPopup = () =>{
+        openGamesRulesPopup = false
     }
 
     const buyPremium = () =>{
@@ -21,17 +28,29 @@
         <p class="game-explanation">Hoe werkt het spel? Iedereen koopt van te voren <b>3</b> of <b>4</b> cadeautjes voor een vooraf bepaald bedrag. Tijdens het spel houdt iedereen altijd minimaal 1 cadeautje voor zich. Dus een opdracht gaat niet door als dat betekent dat je geen cadeau meer zou overhouden.</p>
         <div class="call-to-actions">
             <Button title="Start het spel" type="secondary" onClick={startNewGame} margin={true}/>
-            <Button title="Wat zijn de spelregels?" type="secondary" onClick={showGameRules} margin={true}/>
+            <Button title="Wat zijn de spelregels?" type="secondary" onClick={openGameRulesPopup} margin={true}/>
             <Button title="Premium versie" type="primary" onClick={buyPremium} margin={true}>
-                <div class="premium-slot" slot="side-slot"><p>€1</p></div>
+                <div slot="side-slot" class="premium-slot"><p>€1</p></div>
             </Button>
             <p class="premium-perk">+ Onbeperkt aantal rondes</p>
             <p class="premium-perk">+ Eigen regels maken</p>
         </div>
     </div>
+    <Popup open={openGamesRulesPopup}>
+        <div slot="content" class="game-rules__popup">
+            {#each Array(6) as _, index (index)}
+                <div class="d-flex align-items-center game-rules__row game-rules__row--{index}">
+                    <img src="/images/dice-{index + 1}.svg">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut rutrum nisi quis nisl ultricies eleifend</p>
+                </div>
+            {/each}
+            <Button title="Start het spel" type="primary" onClick={startNewGame} margin={true} hoverEffect={false}/>
+            <Button title="Sluiten" type="secondary" onClick={closeGameRulesPopup} margin={false} hoverEffect={false}/>
+        </div>
+    </Popup>
 </div>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .home-page{
         width: 100vw;
         height: 100vh;
@@ -107,5 +126,32 @@
         left: -40px;
         bottom: -40px;    
         pointer-events: none;
+    }
+
+    .game-rules{
+        &__popup{
+            width: 500px;
+        }
+
+        &__row{
+            margin-bottom: 30px;
+
+            &--5{
+                margin-bottom: 60px;
+            }
+
+            img{
+                width: 40px;
+                height: 40px;
+                margin-right: 20px;
+            }
+
+            p{
+                font-size: 18px;
+                font-size: 400;
+                flex: 1;
+                margin: 0;
+            }
+        }
     }
 </style>

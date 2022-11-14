@@ -3,9 +3,10 @@
     export let title: string;
     export let type: string = 'secondary'
     export let margin: boolean = true
+    export let hoverEffect: boolean = true
 </script>
 
-<div class="button button--{type}{margin ? ' button--margin' : ''}{$$slots["side-slot"] ? ' button--has-children' : ''}">
+<div class="button button--{type}{margin ? ' button--margin' : ''}{$$slots["side-slot"] ? ' button--has-children' : ''}{hoverEffect ? ' button--hover' : ''}" on:click={onClick}>
     <p>{title}</p>
     {#if $$slots["side-slot"]}
         <slot name="side-slot"/>
@@ -19,6 +20,7 @@
         cursor: pointer;
         border-radius: $border-radius-md;
         padding: 6px;
+        transition: transform 300ms $easing;
 
         p{
             color: white;
@@ -26,6 +28,7 @@
             font-size: 16px;
             padding: 6px 20px;
             margin: 0 auto;
+            user-select: none;
         }
 
         &--primary{
@@ -45,6 +48,12 @@
 
             p{
                 margin: 0;
+            }
+        }
+
+        &--hover{
+            &:hover{
+                transform: scale(1.05);
             }
         }
     }
