@@ -1,7 +1,9 @@
-<script>
+<script lang="ts">
     import Button from "../components/button.svelte";
     import Popup from "../components/popup.svelte";
 
+    /** @type {import('./$types').PageData} */
+    export let data: {gameRules: string[] }
     let openGamesRulesPopup = false;
 
     const startNewGame = () =>{
@@ -38,10 +40,10 @@
     </div>
     <Popup open={openGamesRulesPopup}>
         <div slot="content" class="game-rules__popup">
-            {#each Array(6) as _, index (index)}
+            {#each data.gameRules as rule, index}
                 <div class="d-flex align-items-center game-rules__row game-rules__row--{index}">
                     <img src="/images/dice-{index + 1}.svg">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut rutrum nisi quis nisl ultricies eleifend</p>
+                    <p>{rule}</p>
                 </div>
             {/each}
             <Button title="Start het spel" type="primary" onClick={startNewGame} margin={true} hoverEffect={false}/>
