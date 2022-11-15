@@ -63,7 +63,7 @@
     }
 
     .intro-title{
-        font-size: 48px;
+        font-size: 38px;
         color: white;
         font-weight: 500;
         text-align: center;
@@ -77,10 +77,10 @@
 
     .game-explanation{
         color: white;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 200;
         text-align: center;
-        margin: 0 auto 80px auto;
+        margin: 0 auto 60px auto;
         max-width: 700px;
 
         b{
@@ -100,7 +100,7 @@
             border-radius: $border-radius-md;
             background-color: white;
             width: 36px;
-            
+
             p{
                 margin: 0;
                 color: $green;
@@ -124,7 +124,7 @@
         max-width: 700px;
         height: auto;
         left: -40px;
-        bottom: -40px;    
+        bottom: -40px;
         pointer-events: none;
     }
 
@@ -134,21 +134,20 @@
         }
 
         &__row{
-            margin-bottom: 30px;
+            margin-bottom: 20px;
 
             &--5{
-                margin-bottom: 60px;
+                margin-bottom: 40px;
             }
 
             img{
-                width: 40px;
-                height: 40px;
+                width: 35px;
+                height: 35px;
                 margin-right: 20px;
             }
 
             p{
-                font-size: 18px;
-                font-size: 400;
+                font-size: 16px;
                 flex: 1;
                 margin: 0;
             }

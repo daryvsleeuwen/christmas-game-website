@@ -1,5 +1,5 @@
 <script>
-   export let open = false 
+   export let open = false
 </script>
 
 <div class="popup{open ? ' popup-fade-in' : ' popup-fade-out'}">
@@ -39,7 +39,7 @@
         }
 
         100%{
-            transform: scale(1); 
+            transform: scale(1);
         }
     }
 
@@ -92,24 +92,24 @@
             left: 0;
             top: 0;
             width: 100%;
-            height: 100%;     
+            height: 100%;
             background-color: $black;
             opacity: 0.4;
         }
 
         &__content{
             position: relative;
-            padding: 50px;
+            padding: 35px;
             background-color: white;
             border-radius: $border-radius-lg;
         }
 
         &__decoration{
             position: absolute;
-            right: -100px;
-            top: -20px;
+            right: -80px;
+            top: 0;
             transform: translate(-50%, -50%);
-            width: 125px;
+            width: 100px;
             height: auto;
         }
     }
