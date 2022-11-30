@@ -1,21 +1,20 @@
 <script lang="ts">
     import Button from "../components/button.svelte";
     import Popup from "../components/popup.svelte";
+    import { openState } from "../stores/popup-store";
 
-    /** @type {import('./$types').PageData} */
     export let data: {gameRules: string[] }
-    let openGamesRulesPopup = false;
 
     const startNewGame = () =>{
 
     }
 
     const openGameRulesPopup = () =>{
-        openGamesRulesPopup = true
+        openState.set(true)
     }
 
     const closeGameRulesPopup = () =>{
-        openGamesRulesPopup = false
+        openState.set(false)
     }
 
     const buyPremium = () =>{
@@ -38,7 +37,7 @@
             <p class="premium-perk">+ Eigen regels maken</p>
         </div>
     </div>
-    <Popup open={openGamesRulesPopup}>
+    <Popup openState={openState}>
         <div slot="content" class="game-rules__popup">
             {#each data.gameRules as rule, index}
                 <div class="d-flex align-items-center game-rules__row game-rules__row--{index}">
@@ -87,6 +86,7 @@
 
         b{
             font-weight: 600;
+            font-size: 20px;
             color: $gold;
         }
     }
@@ -128,6 +128,10 @@
         left: -40px;
         bottom: -40px;
         pointer-events: none;
+
+        @media (max-width: 700px){
+            display: none;
+        }
     }
 
     .game-rules{
@@ -154,5 +158,9 @@
                 margin: 0;
             }
         }
+    }
+
+    @media (max-width: 700px){
+        
     }
 </style>

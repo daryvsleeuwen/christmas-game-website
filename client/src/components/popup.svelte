@@ -1,11 +1,30 @@
-<script>
-   export let open = false
+<script lang="ts">
+    export let openState: any
+    let count: number = 0
+    let fadeClass: string = ''
+    let scaleClass: string = ''
+    
+    $: {
+        count++
+
+        if(count > 1){
+            if($openState){
+                fadeClass = ' popup-fade-in'
+                scaleClass = ' popup-scale-in'
+            }
+            else{
+                fadeClass = ' popup-fade-out'
+                scaleClass = ' popup-scale-out'
+
+            }
+        }
+    }
 </script>
 
-<div class="popup{open ? ' popup-fade-in' : ' popup-fade-out'}">
-    <div class="popup__overlay"></div>
+<div class="popup{fadeClass}">
+    <div class="popup__overlay" on:click={() => { openState.set(false) }}></div>
     {#if $$slots["content"]}
-        <div class="popup__content{open ? ' popup-scale-in' : ' popup-scale-out'}">
+        <div class="popup__content{scaleClass}">
             <slot name="content"/>
             <img src="/images/christmas-sock.svg" class="popup__decoration"/>
         </div>
@@ -55,12 +74,12 @@
     }
 
     .popup-fade-in{
+        pointer-events: all !important;
         transform-origin: center center;
         animation: fade-in 400ms $easing forwards;
     }
 
     .popup-fade-out{
-        pointer-events: none;
         transform-origin: center center;
         animation: fade-out 400ms $easing forwards;
     }
@@ -71,12 +90,12 @@
     }
 
     .popup-scale-out{
-        pointer-events: none;
         transform-origin: center center;
         animation: scale-out 400ms $easing forwards;
     }
 
     .popup{
+        opacity: 0;
         position: absolute;
         left: 0;
         top: 0;
@@ -86,6 +105,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        pointer-events: none;
 
         &__overlay{
             position: absolute;
@@ -98,6 +118,7 @@
         }
 
         &__content{
+            transform: scale(0.8);
             position: relative;
             padding: 35px;
             background-color: white;
