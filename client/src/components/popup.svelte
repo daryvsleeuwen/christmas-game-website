@@ -1,13 +1,13 @@
 <script lang="ts">
-    export let openState: any
-    let count: number = 0
+	import type { Writable } from "svelte/store";
+
+    export let openState: Writable<boolean>
+    let init: boolean = false
     let fadeClass: string = ''
     let scaleClass: string = ''
     
     $: {
-        count++
-
-        if(count > 1){
+        if(init){
             if($openState){
                 fadeClass = ' popup-fade-in'
                 scaleClass = ' popup-scale-in'
@@ -18,6 +18,8 @@
 
             }
         }
+
+        init = true
     }
 </script>
 
@@ -118,20 +120,29 @@
         }
 
         &__content{
+            max-width: 90%;
             transform: scale(0.8);
             position: relative;
             padding: 35px;
             background-color: white;
             border-radius: $border-radius-lg;
+
+            @media (max-width: 700px){
+                padding: 20px;
+            }
         }
 
         &__decoration{
             position: absolute;
+            transform: translate(-50%, -50%);
             right: -80px;
             top: 0;
-            transform: translate(-50%, -50%);
             width: 100px;
             height: auto;
+
+            @media (max-width: 700px){
+                display: none;
+            }
         }
     }
 </style>

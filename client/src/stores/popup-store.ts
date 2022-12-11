@@ -1,3 +1,4 @@
 import { writable } from "svelte/store";
 
-export const openState = writable(false)
+export const gameRulesPopup = writable(false)
+export const alreadyPlayedPopup = writable(false)

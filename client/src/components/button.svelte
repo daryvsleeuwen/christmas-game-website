@@ -37,14 +37,14 @@
 
         &--secondary{
             background-color: $gold;
-        }
 
+        }
         &--margin{
             margin-bottom: 20px;
         }
 
         &--has-children{
-            justify-content: space-between;
+            justify-content: center;
 
             p{
                 margin: 0;
@@ -54,6 +54,12 @@
         &--hover{
             &:hover{
                 transform: scale(1.05);
+            }
+        }
+
+        @media (max-width: 700px){
+            &:active{
+                transform: scale(0.95);
             }
         }
     }

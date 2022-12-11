@@ -1,20 +1,41 @@
 <script lang="ts">
+	import { onMount } from "svelte";
     import Button from "../components/button.svelte";
     import Popup from "../components/popup.svelte";
-    import { openState } from "../stores/popup-store";
+    import { gameRulesPopup, alreadyPlayedPopup } from "../stores/popup-store";
 
-    export let data: {gameRules: string[] }
+    export let data: {gameRules: string[], diceInstructions: string[], hasAlreadyPlayed: boolean }
+
+    onMount(() =>{
+        if(data.hasAlreadyPlayed){
+            openAlreadyPlayedPopup()
+        }
+    })
 
     const startNewGame = () =>{
-
+        if(data.hasAlreadyPlayed){
+            closeGameRulesPopup()
+            openAlreadyPlayedPopup()
+        }
+        else{
+            window.location.href = '/game'
+        }
     }
 
     const openGameRulesPopup = () =>{
-        openState.set(true)
+        gameRulesPopup.set(true)
     }
 
     const closeGameRulesPopup = () =>{
-        openState.set(false)
+        gameRulesPopup.set(false)
+    }
+
+    const openAlreadyPlayedPopup = () =>{
+        alreadyPlayedPopup.set(true)
+    }
+
+    const closeAlreadyPlayedPopup= () =>{
+        alreadyPlayedPopup.set(false)
     }
 
     const buyPremium = () =>{
@@ -37,16 +58,27 @@
             <p class="premium-perk">+ Eigen regels maken</p>
         </div>
     </div>
-    <Popup openState={openState}>
+    <Popup openState={gameRulesPopup}>
         <div slot="content" class="game-rules__popup">
-            {#each data.gameRules as rule, index}
-                <div class="d-flex align-items-center game-rules__row game-rules__row--{index}">
+            {#each data.diceInstructions as instruction, index}
+                <div class="d-flex align-items-center game-rules__row{index === data.diceInstructions.length - 1 ? ' mb-5' : ''}">
                     <img src="/images/dice-{index + 1}.svg">
-                    <p>{rule}</p>
+                    <p>{instruction}</p>
                 </div>
             {/each}
             <Button title="Start het spel" type="primary" onClick={startNewGame} margin={true} hoverEffect={false}/>
             <Button title="Sluiten" type="secondary" onClick={closeGameRulesPopup} margin={false} hoverEffect={false}/>
+        </div>
+    </Popup>
+
+
+    <Popup openState={alreadyPlayedPopup}>
+        <div slot="content" class="already-played__popup">
+            <p class="already-played__title">Je hebt je gratis rondje op dit netwerk al gespeeld. Upgrade naar <b>Premium</b> om zoveel rondes te spelen als je wilt</p>
+            <Button title="Premium versie" type="primary" onClick={buyPremium} margin={true} hoverEffect={false}>
+                <div slot="side-slot" class="premium-slot"><p>€1</p></div>
+            </Button>
+            <Button title="Sluiten" type="secondary" onClick={closeAlreadyPlayedPopup} margin={false} hoverEffect={false}/>
         </div>
     </Popup>
 </div>
@@ -95,20 +127,6 @@
         width: 230px;
         margin: 0 auto;
 
-        .premium-slot{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: $border-radius-md;
-            background-color: white;
-            width: 36px;
-
-            p{
-                margin: 0;
-                color: $green;
-            }
-        }
-
         .premium-perk{
             color: white;
             font-size: 16px;
@@ -119,32 +137,43 @@
         }
     }
 
+    .premium-slot{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: $border-radius-md;
+        background-color: white;
+        width: 36px;
+
+        p{
+             margin: 0;
+            color: $green;
+        }
+    }
+
     .christmas-tree-decoration{
         position: absolute;
-        width: 45vw;
-        min-width: 450px;
-        max-width: 700px;
+        width: 500px;
         height: auto;
         left: -40px;
         bottom: -40px;
         pointer-events: none;
 
         @media (max-width: 700px){
-            display: none;
+            width: auto;
+            height: 32vh;
+            left: -10px;
+            bottom: -10px;
         }
     }
 
     .game-rules{
         &__popup{
-            width: 500px;
+            max-width: 500px;
         }
 
         &__row{
             margin-bottom: 20px;
-
-            &--5{
-                margin-bottom: 40px;
-            }
 
             img{
                 width: 35px;
@@ -158,9 +187,48 @@
                 margin: 0;
             }
         }
+
+        @media (max-width: 700px){
+            &__row{
+                margin-bottom: 15px;
+
+                img{
+                    width: 30px;
+                    height: 30px;
+                }
+
+                p{
+                    font-size: 14px;
+                }
+            }        
+        }
+    }
+
+    .already-played{
+        &__popup{
+            max-width: 400px;
+        }
+
+        &__title{
+                font-size: 20px;
+                font-weight: 500;
+                margin-bottom: 30px;
+
+                b{
+                    font-weight: 600;
+                    color: $red;
+                }
+            }
     }
 
     @media (max-width: 700px){
-        
+        .intro-title{
+            font-size: 32px;
+            margin-top: 40px;
+        }
+
+        .game-explanation{
+            display: none;
+        }
     }
 </style>
