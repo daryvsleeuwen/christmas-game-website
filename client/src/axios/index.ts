@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_ENV === 'dev' ? 'http://localhost:8040/api/' : 'https://hetkerstspel.nl/api/',
+  baseURL: import.meta.env.VITE_ENV === 'dev' ? 'http://localhost:8040/api/' : 'http://localhost:8040/api/',
   timeout: 10000,
   params: {},
 });
