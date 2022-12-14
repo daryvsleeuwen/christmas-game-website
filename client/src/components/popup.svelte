@@ -2,6 +2,8 @@
 	import type { Writable } from "svelte/store";
 
     export let openState: Writable<boolean>
+    export let closeOnOuterClick: boolean = true
+
     let init: boolean = false
     let fadeClass: string = ''
     let scaleClass: string = ''
@@ -24,7 +26,7 @@
 </script>
 
 <div class="popup{fadeClass}">
-    <div class="popup__overlay" on:click={() => { openState.set(false) }}></div>
+    <div class="popup__overlay" on:click={() => { if (closeOnOuterClick) openState.set(false) }}></div>
     {#if $$slots["content"]}
         <div class="popup__content{scaleClass}">
             <slot name="content"/>

@@ -4,15 +4,15 @@
     
     export let minutes: number;
     export let onFinish: () => void;
+    export let getRestarter: (restarter: () => void) => void;
 
     let milliseconds: number = 0
     let startTime: number = Date.now()
     let currentTime: number = 0
+    let hidden: boolean = true
     let timer: any = null
 
-    onMount(() =>{
-        milliseconds = minutes * 60 * 1000
-
+    const setTimerInterval = () =>{
         timer = setInterval(() =>{
             currentTime = milliseconds - (Date.now() - startTime);
 
@@ -21,6 +21,25 @@
                 onFinish()
             }
         }, 1000)
+    }
+
+    const startTimer = () =>{
+        milliseconds = minutes * 60 * 1000
+        setTimerInterval()
+    }
+
+    const restartTimer = () =>{
+        startTime = Date.now()
+        setTimerInterval()
+    }
+
+    onMount(() =>{
+        startTimer()
+        getRestarter(restartTimer)
+
+        setTimeout(() => {
+            hidden = false            
+        }, 1000);
     })
 
     onDestroy(() =>{
@@ -28,7 +47,7 @@
     })
 </script>
 
-<div class="timer">
+<div class="timer{hidden ? ' d-none' : ''}">
     <p>{millisecondsToTime(currentTime)}</p>
 </div>
 

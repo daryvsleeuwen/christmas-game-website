@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { GameModule } from './game/game.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { GameModule } from './game/game.module';
     AuthModule,
     PrismaModule,
     GameModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

@@ -1,9 +1,7 @@
 import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class UserDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
+  id: number;
 
   @IsEmail()
   @IsNotEmpty()

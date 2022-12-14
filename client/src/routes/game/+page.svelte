@@ -1,19 +1,34 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+    import { user } from '../../stores/user';
+    import { userSettingsPopup, switchRoundPopup, finishGamePopup, buyPremiumPopup } from '../../stores/popup';
+    import { isAuth } from "../../auth/index";
     import AccountButton from "../../components/account-button.svelte";
     import Timer from "../../components/timer.svelte";
+    import Button from "../../components/button.svelte";
+    import Input from "../../components/input.svelte";
     import { ClockIcon } from 'svelte-feather-icons'
-    import axios from "../../axios/index";
+	import Popup from "../../components/popup.svelte";
+	import axios from "axios";
     
     export let data: {gameRules: string[], diceInstructions: string[], hasAlreadyPlayed: boolean }
 
     let init: boolean = false
     let displayTimer: boolean = true
     let currentDice: number = 0
+    let currentRound: number = 1
+    let amountOfDiceRolled: number = 0
     let randomRotation: number = 0
     let diceRollAnimationClass: string = ''
     let diceInstructionAnimationClass: string = ''
     let diceDisabled: boolean = false
     let diceInstruction: string = 'Klik op de dobbelsteen voor een willekeurige opdracht!'
+    let timerRestarter: () => void;
+
+    onMount(async () =>{
+        const authUser = await isAuth()
+        user.set(authUser)
+    })
 
     const rollDice = (animationName: string) =>{
         init = true
@@ -27,6 +42,12 @@
         if(animationName.includes('fade-in')){
             diceRollAnimationClass = ''
             diceDisabled = false
+        }
+
+        amountOfDiceRolled++
+
+        if(amountOfDiceRolled === 5){
+            saveGameSession()
         }
     }
 
@@ -59,13 +80,70 @@
         }
     }
 
-    const sendGameToServer = () =>{
+    const saveGameSession = () =>{
 
     }
 
-    const finishGame = () =>{
+    const switchRound = () =>{
+        currentRound = 2
+
+        if (typeof timerRestarter === 'function'){
+            timerRestarter()
+            switchRoundPopup.set(false)
+        }
+    }
+
+    const finishGame = () =>{ 
         //check if current user is valid. Then display popup to play another round. 
         //Otherwise notify user to buy the premium subscription and that they otherwise cannot play a new round
+
+        if($user){
+            finishGamePopup.set(true)
+        }
+        else{
+            buyPremiumPopup.set(true)
+        }
+
+    }
+
+    const playAgain = () =>{
+        finishGamePopup.set(false)
+        buyPremiumPopup.set(false)
+
+        init = false
+        displayTimer = true
+        currentDice = 0
+        currentRound = 1
+        amountOfDiceRolled = 0
+        randomRotation = 0
+        diceRollAnimationClass = ''
+        diceInstructionAnimationClass = ''
+        diceDisabled = false
+        diceInstruction = 'Klik op de dobbelsteen voor een willekeurige opdracht!'
+
+        if (typeof timerRestarter === 'function'){
+            timerRestarter()
+            switchRoundPopup.set(false)
+        }
+    }
+
+    const changeRoundDuration = (value: string) =>{
+        if ($user === null) return
+        
+        const userCopy = {...$user}
+        userCopy.gameSettings.roundDuration = Number(value)
+        user.set(userCopy)
+    }
+
+    const saveUserSettings = async () =>{
+        if ($user === null) return
+
+        const response = await axios.post('user/settings/update', { roundDuration: $user.gameSettings.roundDuration})
+        closeUserSettingsPopup()
+    }
+
+    const closeUserSettingsPopup = () =>{
+        userSettingsPopup.set(false)
     }
 </script>
 
@@ -75,11 +153,23 @@
             <ClockIcon size="24" class="toggle-timer-button__icon"/>
             <p>{displayTimer ? 'Verberg de tijd': 'Laat de tijd zien'}</p>
         </div>
-        <AccountButton/>
+        {#if $user !== null}
+            <AccountButton/>
+        {/if}
     </div>
     <div class="flex-fill d-flex flex-column justify-content-between align-items-center">
-        <div class="game-timer{displayTimer ? '': ' game-timer--hidden'}">
-            <Timer minutes={30} onFinish={finishGame}/>
+        <div>
+            <p class="current-game-round">ronde {currentRound}</p>
+            <div class="game-timer{displayTimer ? '': ' game-timer--hidden'}">
+                <Timer minutes={$user === null ? 10 : $user.gameSettings.roundDuration} onFinish={() => {
+                    if(currentRound === 1){
+                        switchRoundPopup.set(true)
+                    }
+                    else{
+                        finishGame()
+                    }
+                }} getRestarter={(restarter) => { timerRestarter = restarter }}/>
+            </div>
         </div>
         <p class="current-dice-instruction{diceInstructionAnimationClass}" on:animationend={(event) => {fadeDiceInstruction(event.animationName)}}>{diceInstruction}</p>
         <div class="w-100">
@@ -89,6 +179,40 @@
             </div>
         </div>
     </div>
+
+    {#if $user !== null}
+        <Popup openState={userSettingsPopup}>
+            <div slot="content" class="user-settings__popup">
+                <p class="user-settings__title">Game instellingen</p>
+                <Input type="number" label="Hoelang moet een ronde duren?" placeholder="Minuten" onChange={changeRoundDuration} />
+                <Button title="Opslaan" type="primary" onClick={saveUserSettings} margin={true} hoverEffect={false}/>
+                <Button title="Sluiten" type="secondary" onClick={closeUserSettingsPopup} margin={false} hoverEffect={false}/>
+            </div>
+        </Popup>
+    {/if}
+
+    <Popup openState={switchRoundPopup} closeOnOuterClick={false}>
+        <div slot="content" class="switch-round__popup">
+            <p class="switch-round__title">De eerste ronde is voorbij. Klik op de knop om de tweede ronde te starten</p>
+            <Button title="Start ronde 2" type="secondary" onClick={switchRound} margin={false} hoverEffect={false}/>
+        </div>
+    </Popup>
+
+    <Popup openState={finishGamePopup} closeOnOuterClick={false}>
+        <div slot="content" class="finished-game__popup">
+            <p class="finished-game__title">Het spel is afgelopen! Klik op de knop om nog een keer te spelen</p>
+            <Button title="Start een nieuwe game" type="secondary" onClick={playAgain} margin={false} hoverEffect={false}/>
+        </div>
+    </Popup>
+
+    <Popup openState={buyPremiumPopup} closeOnOuterClick={false}>
+        <div slot="content" class="buy-premium__popup">
+            <p class="buy-premium__title">Het spel is afgelopen! Koop premium om zovaak te spelen als je wilt</p>
+            <Button title="Premium versie" type="primary" onClick={() => {}} margin={true} hoverEffect={false}>
+                <div slot="side-slot" class="premium-slot"><p>€1</p></div>
+            </Button>
+        </div>
+    </Popup>
 </div>
 
 <style lang="scss">
@@ -103,38 +227,47 @@
             margin-bottom: 30px;
         }
 
-        .toggle-timer-button{
-            display: flex;
-            align-items: center;
+        :global {
+            .toggle-timer-button{
+                display: flex;
+                align-items: center;
+                text-align: center;
+                cursor: pointer;
+                border-radius: $border-radius-md;
+                padding: 9px 14px;
+                background-color: $red;
+                transition: transform 300ms $easing;
+
+                @media (max-width: 700px){
+                    &:active{
+                        transform: scale(0.95);
+                    }
+                }
+
+                p{
+                    color: white;
+                    font-weight: 500;
+                    font-size: 14px;
+                    margin: 0 0 0 10px;
+                    user-select: none;
+                }
+
+                &__icon{
+                    width: 20px;
+                    height: auto;
+
+                    *{
+                        stroke: white
+                    }
+                }
+            }
+        }
+
+        .current-game-round{
+            font-size: 22px;
+            font-weight: 300;
             text-align: center;
-            cursor: pointer;
-            border-radius: $border-radius-md;
-            padding: 9px 14px;
-            background-color: $red;
-            transition: transform 300ms $easing;
-
-            @media (max-width: 700px){
-                &:active{
-                    transform: scale(0.95);
-                }
-            }
-
-            p{
-                color: white;
-                font-weight: 500;
-                font-size: 14px;
-                margin: 0 0 0 10px;
-                user-select: none;
-            }
-
-            &__icon{
-                width: 20px;
-                height: auto;
-
-                *{
-                    stroke: white
-                }
-            }
+            margin-bottom: 0;
         }
 
         .game-timer{
@@ -190,7 +323,6 @@
         .roll-dice-icon{
             width: 60px;
             height: 60px;
-            fill: white;
             transform: rotate(0deg);
             transition: all 600ms $easing;
         }
@@ -253,6 +385,19 @@
 
         .fade-scale-in{
             animation: fade-scale-in 300ms $easing forwards;
+        }
+
+        .user-settings, .switch-round, .finished-game, .buy-premium{
+            &__popup{
+                max-width: 500px;
+            }
+
+            &__title{
+                color: $black;
+                font-size: 20px;
+                font-weight: 500;
+                margin-bottom: 30px;
+            }
         }
     }
 </style>

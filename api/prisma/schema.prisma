@@ -12,10 +12,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name         String
   email        String        @unique
   password     String
   role         Role          @default(USER)
+  gameSettings GameSettings?
   gameSessions GameSession[]
 }
 
@@ -25,12 +25,22 @@ enum Role {
   DISABLED
 }
 
+model GameSettings {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roundDuration Int  @default(30)
+  user          User @relation(fields: [userId], references: [id])
+  userId        Int  @unique
+}
+
 model GameSession {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   clientIp String @unique
-  User     User?  @relation(fields: [userId], references: [id])
+  user     User?  @relation(fields: [userId], references: [id])
   userId   Int?
 }

@@ -17,14 +17,22 @@ export class AuthService {
     try {
       const user = await this.prisma.user.create({
         data: {
-          name: data.name,
           email: data.email,
           password: hash,
         },
       });
 
-      return this.signToken(user.id, user.email, user.name, user.role);
+      const gameSettings = await this.prisma.gameSettings.create({
+        data: {
+          userId: user.id
+        },
+      });
+
+      const accessToken = await this.signToken(user.id, user.email, user.role)
+      return { ...accessToken, gameSettings: gameSettings};
     } catch (error) {
+      console.log(error);
+      
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Email is already taken');
@@ -36,6 +44,9 @@ export class AuthService {
   async signin(data: SignInDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
+      include: {
+        gameSettings: true
+      }
     });
 
     if (!user) {
@@ -48,14 +59,14 @@ export class AuthService {
       return { error: 'Incorrecte inloggegevens', accessToken: null };
     }
 
-    return this.signToken(user.id, user.email, user.name, user.role);
+    const accessToken = await this.signToken(user.id, user.email, user.role)
+    return {...accessToken, gameSettings: user.gameSettings};
   }
 
-  async signToken(userId: number, email: string, name: string, role: string) {
+  async signToken(userId: number, email: string, role: string) {
     const payload = {
       sub: userId,
       email,
-      name,
       role,
     };
 
@@ -76,6 +87,9 @@ export class AuthService {
 
     const user = await this.prisma.user.findUnique({
       where: { id: verified.sub },
+      include: {
+        gameSettings: true
+      }
     });
 
     if (user !== null) {
@@ -120,7 +134,7 @@ export class AuthService {
       });
 
       if (updatedUser) {
-        const token = this.signToken(updatedUser.id, updatedUser.email, updatedUser.name, updatedUser.role);
+        const token = this.signToken(updatedUser.id, updatedUser.email, updatedUser.role);
         return { success: true, accessToken: token };
       }
 

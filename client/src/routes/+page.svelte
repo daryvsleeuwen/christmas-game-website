@@ -1,19 +1,24 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+    import { user } from '../stores/user'
     import Button from "../components/button.svelte";
     import Popup from "../components/popup.svelte";
-    import { gameRulesPopup, alreadyPlayedPopup } from "../stores/popup-store";
+    import { gameRulesPopup, alreadyPlayedPopup } from "../stores/popup";
+	import { isAuth } from "../auth/index";
 
     export let data: {gameRules: string[], diceInstructions: string[], hasAlreadyPlayed: boolean }
 
-    onMount(() =>{
-        if(data.hasAlreadyPlayed){
+    onMount(async () =>{
+        const authUser = await isAuth()
+        user.set(authUser)
+
+        if (data.hasAlreadyPlayed && !user){
             openAlreadyPlayedPopup()
         }
     })
 
     const startNewGame = () =>{
-        if(data.hasAlreadyPlayed){
+        if(data.hasAlreadyPlayed && !user){
             closeGameRulesPopup()
             openAlreadyPlayedPopup()
         }
@@ -58,6 +63,7 @@
             <p class="premium-perk">+ Eigen regels maken</p>
         </div>
     </div>
+    
     <Popup openState={gameRulesPopup}>
         <div slot="content" class="game-rules__popup">
             {#each data.diceInstructions as instruction, index}
@@ -70,7 +76,6 @@
             <Button title="Sluiten" type="secondary" onClick={closeGameRulesPopup} margin={false} hoverEffect={false}/>
         </div>
     </Popup>
-
 
     <Popup openState={alreadyPlayedPopup}>
         <div slot="content" class="already-played__popup">
@@ -137,17 +142,19 @@
         }
     }
 
-    .premium-slot{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: $border-radius-md;
-        background-color: white;
-        width: 36px;
+    :global {
+        .premium-slot{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: $border-radius-md;
+            background-color: white;
+            width: 36px;
 
-        p{
-             margin: 0;
-            color: $green;
+            p{
+                margin: 0;
+                color: $green;
+            }
         }
     }
 
@@ -218,7 +225,7 @@
                     font-weight: 600;
                     color: $red;
                 }
-            }
+        }
     }
 
     @media (max-width: 700px){
