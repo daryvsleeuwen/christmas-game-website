@@ -15,8 +15,6 @@
         const authUser = await isAuth()
         user.set(authUser)
 
-        console.log($user);
-        
         const hasAlreadyPlayedResponse = await axios.post('game/already-played')
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
     })
