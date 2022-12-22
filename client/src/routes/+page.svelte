@@ -6,16 +6,25 @@
     import { gameRulesPopup, buyPremiumCheckoutPopup } from "../stores/popup";
 	import { isAuth } from "../auth/index";
 	import BuyPremiumPopup from "../components/buy-premium-popup.svelte";
+    import axios from '../axios/index'
 
     export let data: {gameRules: string[], diceInstructions: string[], hasAlreadyPlayed: boolean }
+    let hasAlreadyPlayed: boolean | null = null
 
     onMount(async () =>{
         const authUser = await isAuth()
         user.set(authUser)
+
+        console.log($user);
+        
+        const hasAlreadyPlayedResponse = await axios.post('game/already-played')
+        hasAlreadyPlayed = hasAlreadyPlayedResponse.data
     })
 
     const startNewGame = () =>{
-        if(data.hasAlreadyPlayed && !$user){
+        if(hasAlreadyPlayed === null) return
+
+        if(hasAlreadyPlayed && !$user){
             closeGameRulesPopup()
             openPremiumCheckoutPopup()
         }
@@ -72,16 +81,6 @@
             <Button title="Sluiten" type="secondary" onClick={closeGameRulesPopup} margin={false} hoverEffect={false}/>
         </div>
     </Popup>
-
-    <!-- <Popup openState={alreadyPlayedPopup}>
-        <div slot="content" class="already-played__popup">
-            <p class="already-played__title">Je hebt je gratis rondje op dit netwerk al gespeeld. Upgrade naar <b>Premium</b> om zoveel rondes te spelen als je wilt</p>
-            <Button title="Premium versie" type="primary" onClick={buyPremium} margin={true} hoverEffect={false}>
-                <div slot="side-slot" class="premium-slot"><p>€2</p></div>
-            </Button>
-            <Button title="Sluiten" type="secondary" onClick={closeAlreadyPlayedPopup} margin={false} hoverEffect={false}/>
-        </div>
-    </Popup> -->
 
     <BuyPremiumPopup />
 </div>

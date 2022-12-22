@@ -71,7 +71,7 @@ export class GameService {
   }
 
   async createNewGame(clientIp: string, accessToken: string) {
-    if(accessToken){
+    if(accessToken !== null && accessToken !== undefined){
       const isAuth = await this.auth.isAuth(accessToken)
 
       if(isAuth){

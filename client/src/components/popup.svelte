@@ -4,7 +4,7 @@
     export let openState: Writable<boolean>
     export let closeOnOuterClick: boolean = true
 
-    let init: boolean = true
+    let init: boolean = false
     let fadeClass: string = ''
     let scaleClass: string = ''
     

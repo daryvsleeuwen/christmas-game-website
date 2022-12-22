@@ -6,6 +6,8 @@
 	import Button from "./button.svelte";
 	import Input from "./input.svelte";
 
+    export let closeOnOuterClick: boolean = true
+
     let stripe: any
     let idealBankElement: HTMLElement 
     let ideal: any = null
@@ -58,7 +60,7 @@
 </script>
 
 <div class="buy-premium-checkout-popup">
-    <Popup openState={buyPremiumCheckoutPopup}>
+    <Popup openState={buyPremiumCheckoutPopup} closeOnOuterClick={closeOnOuterClick}>
         <div slot="content" class="premium-checkout__popup">
             <p class="premium-checkout-popup__title">Je hebt je gratis ronde al gespeeld</p>
             <p class="premium-checkout-popup__title">Betaal €2 en speel zoveel rondes als je wilt</p>
