@@ -1,13 +1,18 @@
 <script lang="ts">
     export let type: string = 'text'
     export let placeholder: string
+    export let value: string = ''
     export let label: string
     export let onChange: (value: string) => void
+    export let error: string | null = null
 </script>
 
 <div class="input__wrapper">
     <label class="label">{label}</label>
-    <input type="{type}" class="input" placeholder={placeholder} on:input={(event) => { console.log(event) }}>
+    <input type="{type}" value={value} class="input{error !== null ? ' input--error': ''}" placeholder={placeholder} on:input={(event) => { onChange(event.target.value) }}>
+    {#if error !== null}
+        <div class="input__error-message">{error}</div>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -35,6 +40,18 @@
                 
                 &::placeholder{
                     opacity: 0.5
+                }
+
+                &--error{
+                    border-color: $red;
+                }
+
+                &__error-message{
+                    font-size: 14px;
+                    color: $red;
+                    font-weight: 500;
+                    display: block;
+                    margin-top: 10px;
                 }
             }
         }

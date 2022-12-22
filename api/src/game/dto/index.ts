@@ -1,3 +1,3 @@
-export class NewGameDto{
+export class NewGameDto {
     accessToken: string
 }

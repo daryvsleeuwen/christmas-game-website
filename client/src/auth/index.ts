@@ -3,7 +3,7 @@ import axios from '../axios/index'
 
 export const isAuth = async () =>{
     const accessToken = localStorage.getItem('accessToken')
-    if (accessToken === undefined || accessToken === null) return null
+    if (accessToken === undefined || accessToken === null || accessToken === '') return null
     
     const response = await axios.post('auth/is-auth', { accessToken: accessToken })
 

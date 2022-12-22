@@ -4,6 +4,8 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { GameModule } from './game/game.module';
 import { UserModule } from './user/user.module';
+import { MailerModule } from './mailer/mailer.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { UserModule } from './user/user.module';
     PrismaModule,
     GameModule,
     UserModule,
+    MailerModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [],

@@ -6,33 +6,19 @@ export class UserDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
-
+  
   @IsString()
   @IsNotEmpty()
-  password: string;
+  stripeClientSecret: string;
 }
 
 export class SignInDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
   @IsString()
   @IsNotEmpty()
-  password: string;
+  uuid: string;
 }
 
 export class AccessTokenDto {
-  @IsString()
-  @IsNotEmpty()
-  accessToken: string;
-}
-
-export class PasswordReset {
-  @IsString()
-  @IsNotEmpty()
-  newPassword: string;
-
   @IsString()
   @IsNotEmpty()
   accessToken: string;

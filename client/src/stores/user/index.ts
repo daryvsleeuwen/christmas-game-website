@@ -7,7 +7,6 @@ type GameSettings = {
 type User = {
     accessToken: string
     email: string;
-    password: string;
     gameSettings: GameSettings;
 }
 

@@ -1,24 +1,31 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignInDto, UserDto } from './dto';
-import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService, private config: ConfigService) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService, private config: ConfigService, private mailer: MailerService) {}
 
   async signup(data: UserDto) {
-    const hash = await argon.hash(data.password);
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        stripeClientSecret: data.stripeClientSecret
+      }
+    })
+
+    if(existingUser !== null) return
 
     try {
       const user = await this.prisma.user.create({
         data: {
           email: data.email,
-          password: hash,
+          uuid: uuidv4(),
+          stripeClientSecret: data.stripeClientSecret
         },
       });
 
@@ -28,11 +35,13 @@ export class AuthService {
         },
       });
 
+      this.mailer.send(`Het Kerstspel - Login`, data.email, 'account-login', {
+        uuid: user.uuid,
+      })
+
       const accessToken = await this.signToken(user.id, user.email, user.role)
       return { ...accessToken, gameSettings: gameSettings};
-    } catch (error) {
-      console.log(error);
-      
+    } catch (error) {      
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Email is already taken');
@@ -42,8 +51,8 @@ export class AuthService {
   }
 
   async signin(data: SignInDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: data.email },
+    const user = await this.prisma.user.findFirst({
+      where: { uuid: data.uuid },
       include: {
         gameSettings: true
       }
@@ -53,11 +62,7 @@ export class AuthService {
       return { error: 'Er bestaat geen gebruiker met dat e-mailadres', accessToken: null};
     }
 
-    const passwordMatches = await argon.verify(user.password, data.password);
-
-    if (!passwordMatches) {
-      return { error: 'Incorrecte inloggegevens', accessToken: null };
-    }
+    delete user.stripeClientSecret
 
     const accessToken = await this.signToken(user.id, user.email, user.role)
     return {...accessToken, gameSettings: user.gameSettings};
@@ -93,7 +98,6 @@ export class AuthService {
     });
 
     if (user !== null) {
-      delete user.password;
       return { accessToken: accessToken, ...user };
     }
 
@@ -114,33 +118,5 @@ export class AuthService {
 
   async getAllRoles() {
     return ['ADMIN', 'USER'];
-  }
-
-  async resetPassword(accessToken: string, newPassword: string) {
-    const user = await this.verifyToken(accessToken);
-    if (!user) return;
-
-    const hash = await argon.hash(newPassword);
-
-    try {
-      const updatedUser = await this.prisma.user.update({
-        where: {
-          id: user.id,
-          email: user.email,
-        },
-        data: {
-          password: hash,
-        },
-      });
-
-      if (updatedUser) {
-        const token = this.signToken(updatedUser.id, updatedUser.email, updatedUser.role);
-        return { success: true, accessToken: token };
-      }
-
-      return { success: false };
-    } catch (error) {
-      return { success: false };
-    }
   }
 }

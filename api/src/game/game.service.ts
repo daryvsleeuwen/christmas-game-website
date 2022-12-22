@@ -46,12 +46,12 @@ export class GameService {
     ],
 
     this.diceInstructions = [
-      'Pak het grootste cadeau dat bij iemand ligt',
+      'Willekeurige opdracht',
       'Geen opdracht! Ga verder met het spel',
       'Je mag een cadeau van je eigen stapel uitpakken!',
       'Geen opdracht! Ga verder met het spel',
       'Geen opdracht! Ga verder met het spel',
-      'Geef het grootste cadeau dat je hebt aan de persoon rechts van je',
+      'Willekeurige opdracht',
     ];
   }
 
@@ -60,7 +60,7 @@ export class GameService {
   }
 
   async hasAlreadyPlayed(clientIp: string) {
-    const session = await this.prisma.gameSession.findUnique({
+    const session = await this.prisma.gameSession.findFirst({
       where: {
         clientIp: clientIp,
       },
@@ -78,6 +78,7 @@ export class GameService {
         return await this.prisma.gameSession.create({
           data: {
             clientIp: clientIp,
+            userId: isAuth.id
           },
         });
       }

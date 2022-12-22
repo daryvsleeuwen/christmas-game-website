@@ -2,11 +2,13 @@
     export let onClick: () => void;
     export let title: string;
     export let type: string = 'secondary'
+    export let classes: string = ''
     export let margin: boolean = true
     export let hoverEffect: boolean = true
+    export let loader: boolean = false
 </script>
 
-<div class="button button--{type}{margin ? ' button--margin' : ''}{$$slots["side-slot"] ? ' button--has-children' : ''}{hoverEffect ? ' button--hover' : ''}" on:click={onClick}>
+<div class="button button--{type}{margin ? ' button--margin' : ''}{$$slots["side-slot"] ? ' button--has-children' : ''}{hoverEffect ? ' button--hover' : ''}{classes !== '' && classes !== undefined ? ` ${classes}` : ''}" on:click={onClick}>
     <p>{title}</p>
     {#if $$slots["side-slot"]}
         <slot name="side-slot"/>

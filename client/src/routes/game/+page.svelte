@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { onMount } from "svelte";
     import { user } from '../../stores/user';
-    import { userSettingsPopup, switchRoundPopup, finishGamePopup, buyPremiumPopup } from '../../stores/popup';
+    import { userSettingsPopup, switchRoundPopup, finishGamePopup, buyPremiumPopup, buyPremiumCheckoutPopup } from '../../stores/popup';
     import { isAuth } from "../../auth/index";
     import AccountButton from "../../components/account-button.svelte";
     import Timer from "../../components/timer.svelte";
     import Button from "../../components/button.svelte";
     import Input from "../../components/input.svelte";
+    import BuyPremiumPopup from "../../components/buy-premium-popup.svelte";
     import { ClockIcon } from 'svelte-feather-icons'
 	import Popup from "../../components/popup.svelte";
 	import axios from "axios";
@@ -28,6 +29,10 @@
     onMount(async () =>{
         const authUser = await isAuth()
         user.set(authUser)
+
+        if(data.hasAlreadyPlayed && !$user){
+            buyPremiumCheckoutPopup.set(true)
+        }
     })
 
     const rollDice = (animationName: string) =>{
@@ -80,8 +85,8 @@
         }
     }
 
-    const saveGameSession = () =>{
-
+    const saveGameSession = async () =>{
+        const session = await axios.post('api/game/new', $user?.accessToken)
     }
 
     const switchRound = () =>{
@@ -94,14 +99,11 @@
     }
 
     const finishGame = () =>{ 
-        //check if current user is valid. Then display popup to play another round. 
-        //Otherwise notify user to buy the premium subscription and that they otherwise cannot play a new round
-
         if($user){
             finishGamePopup.set(true)
         }
         else{
-            buyPremiumPopup.set(true)
+            buyPremiumCheckoutPopup.set(true)
         }
 
     }
@@ -137,8 +139,7 @@
 
     const saveUserSettings = async () =>{
         if ($user === null) return
-
-        const response = await axios.post('user/settings/update', { roundDuration: $user.gameSettings.roundDuration})
+        await axios.post('api/user/settings/update', { roundDuration: $user.gameSettings.roundDuration})
         closeUserSettingsPopup()
     }
 
@@ -148,71 +149,75 @@
 </script>
 
 <div class="main game-page">
-    <div class="d-flex align-items-center justify-content-between top-menu">
-        <div class="toggle-timer-button" on:click={() => { displayTimer = !displayTimer }}>
-            <ClockIcon size="24" class="toggle-timer-button__icon"/>
-            <p>{displayTimer ? 'Verberg de tijd': 'Laat de tijd zien'}</p>
+    {#if data.hasAlreadyPlayed && !$user }
+        <BuyPremiumPopup />
+    {:else}
+        <div class="d-flex align-items-center justify-content-between top-menu">
+            <div class="toggle-timer-button{$user ? '' : ' mx-auto'}" on:click={() => { displayTimer = !displayTimer }}>
+                <ClockIcon size="24" class="toggle-timer-button__icon"/>
+                <p>{displayTimer ? 'Verberg de tijd': 'Laat de tijd zien'}</p>
+            </div>
+            {#if $user !== null}
+                <AccountButton/>
+            {/if}
         </div>
-        {#if $user !== null}
-            <AccountButton/>
-        {/if}
-    </div>
-    <div class="flex-fill d-flex flex-column justify-content-between align-items-center">
-        <div>
-            <p class="current-game-round">ronde {currentRound}</p>
-            <div class="game-timer{displayTimer ? '': ' game-timer--hidden'}">
-                <Timer minutes={$user === null ? 10 : $user.gameSettings.roundDuration} onFinish={() => {
-                    if(currentRound === 1){
-                        switchRoundPopup.set(true)
-                    }
-                    else{
-                        finishGame()
-                    }
-                }} getRestarter={(restarter) => { timerRestarter = restarter }}/>
+        <div class="flex-fill d-flex flex-column justify-content-between align-items-center">
+            <div>
+                <p class="current-game-round">ronde {currentRound}</p>
+                <div class="game-timer{displayTimer ? '': ' game-timer--hidden'}">
+                    <Timer minutes={$user === null ? 10 : $user.gameSettings.roundDuration} onFinish={() => {
+                        if(currentRound === 1){
+                            switchRoundPopup.set(true)
+                        }
+                        else{
+                            finishGame()
+                        }
+                    }} getRestarter={(restarter) => { timerRestarter = restarter }}/>
+                </div>
+            </div>
+            <p class="current-dice-instruction{diceInstructionAnimationClass}" on:animationend={(event) => {fadeDiceInstruction(event.animationName)}}>{diceInstruction}</p>
+            <div class="w-100">
+                <p class="roll-dice-title">Klik om te dobbelen</p>
+                <div class="roll-dice-button" on:click={startDiceRollingAnimation}>
+                    <img class="roll-dice-icon{diceRollAnimationClass}" src="/images/dice-{currentDice + 1}.svg" style="transform: rotate({randomRotation}deg);" on:animationend={(event) => {rollDice(event.animationName)}}>
+                </div>
             </div>
         </div>
-        <p class="current-dice-instruction{diceInstructionAnimationClass}" on:animationend={(event) => {fadeDiceInstruction(event.animationName)}}>{diceInstruction}</p>
-        <div class="w-100">
-            <p class="roll-dice-title">Klik om te dobbelen</p>
-            <div class="roll-dice-button" on:click={startDiceRollingAnimation}>
-                <img class="roll-dice-icon{diceRollAnimationClass}" src="/images/dice-{currentDice + 1}.svg" style="transform: rotate({randomRotation}deg);" on:animationend={(event) => {rollDice(event.animationName)}}>
-            </div>
-        </div>
-    </div>
 
-    {#if $user !== null}
-        <Popup openState={userSettingsPopup}>
-            <div slot="content" class="user-settings__popup">
-                <p class="user-settings__title">Game instellingen</p>
-                <Input type="number" label="Hoelang moet een ronde duren?" placeholder="Minuten" onChange={changeRoundDuration} />
-                <Button title="Opslaan" type="primary" onClick={saveUserSettings} margin={true} hoverEffect={false}/>
-                <Button title="Sluiten" type="secondary" onClick={closeUserSettingsPopup} margin={false} hoverEffect={false}/>
+        {#if $user !== null}
+            <Popup openState={userSettingsPopup}>
+                <div slot="content" class="user-settings__popup">
+                    <p class="user-settings__title">Game instellingen</p>
+                    <Input value={$user !== null ? String($user.gameSettings.roundDuration) : ''} type="number" label="Hoelang moet een ronde duren?" placeholder="Minuten" onChange={changeRoundDuration} />
+                    <Button title="Opslaan" type="primary" onClick={saveUserSettings} margin={true} hoverEffect={false}/>
+                    <Button title="Sluiten" type="secondary" onClick={closeUserSettingsPopup} margin={false} hoverEffect={false}/>
+                </div>
+            </Popup>
+        {/if}
+
+        <Popup openState={switchRoundPopup} closeOnOuterClick={false}>
+            <div slot="content" class="switch-round__popup">
+                <p class="switch-round__title">De eerste ronde is voorbij. Klik op de knop om de tweede ronde te starten</p>
+                <Button title="Start ronde 2" type="secondary" onClick={switchRound} margin={false} hoverEffect={false}/>
+            </div>
+        </Popup>
+
+        <Popup openState={finishGamePopup} closeOnOuterClick={false}>
+            <div slot="content" class="finished-game__popup">
+                <p class="finished-game__title">Het spel is afgelopen! Klik op de knop om nog een keer te spelen</p>
+                <Button title="Start een nieuwe game" type="secondary" onClick={playAgain} margin={false} hoverEffect={false}/>
+            </div>
+        </Popup>
+
+        <Popup openState={buyPremiumPopup} closeOnOuterClick={false}>
+            <div slot="content" class="buy-premium__popup">
+                <p class="buy-premium__title">Het spel is afgelopen! Koop premium om zovaak te spelen als je wilt</p>
+                <Button title="Premium versie" type="primary" onClick={() => {}} margin={true} hoverEffect={false}>
+                    <div slot="side-slot" class="premium-slot"><p>€2</p></div>
+                </Button>
             </div>
         </Popup>
     {/if}
-
-    <Popup openState={switchRoundPopup} closeOnOuterClick={false}>
-        <div slot="content" class="switch-round__popup">
-            <p class="switch-round__title">De eerste ronde is voorbij. Klik op de knop om de tweede ronde te starten</p>
-            <Button title="Start ronde 2" type="secondary" onClick={switchRound} margin={false} hoverEffect={false}/>
-        </div>
-    </Popup>
-
-    <Popup openState={finishGamePopup} closeOnOuterClick={false}>
-        <div slot="content" class="finished-game__popup">
-            <p class="finished-game__title">Het spel is afgelopen! Klik op de knop om nog een keer te spelen</p>
-            <Button title="Start een nieuwe game" type="secondary" onClick={playAgain} margin={false} hoverEffect={false}/>
-        </div>
-    </Popup>
-
-    <Popup openState={buyPremiumPopup} closeOnOuterClick={false}>
-        <div slot="content" class="buy-premium__popup">
-            <p class="buy-premium__title">Het spel is afgelopen! Koop premium om zovaak te spelen als je wilt</p>
-            <Button title="Premium versie" type="primary" onClick={() => {}} margin={true} hoverEffect={false}>
-                <div slot="side-slot" class="premium-slot"><p>€1</p></div>
-            </Button>
-        </div>
-    </Popup>
 </div>
 
 <style lang="scss">

@@ -9,11 +9,6 @@ import { GameSettingsDto } from './dto';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('')
-  getUser(@Req() request: Request) {
-    return this.userService.getUser(request['user']);
-  }
-
   @Post('settings/update')
   updateSettings(@Req() request: Request, @Body() data: GameSettingsDto) {
     return this.userService.updateSettings(request['user'], data);

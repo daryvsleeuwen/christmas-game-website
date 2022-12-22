@@ -12,11 +12,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email        String        @unique
-  password     String
-  role         Role          @default(USER)
-  gameSettings GameSettings?
-  gameSessions GameSession[]
+  email              String
+  uuid               String
+  stripeClientSecret String @unique
+  role               Role          @default(USER)
+  gameSettings       GameSettings?
+  gameSessions       GameSession[]
 }
 
 enum Role {
@@ -31,7 +32,7 @@ model GameSettings {
   updatedAt DateTime @updatedAt
 
   roundDuration Int  @default(30)
-  user          User @relation(fields: [userId], references: [id])
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int  @unique
 }
 
@@ -40,7 +41,7 @@ model GameSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  clientIp String @unique
-  user     User?  @relation(fields: [userId], references: [id])
+  clientIp String
+  user     User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int?
 }

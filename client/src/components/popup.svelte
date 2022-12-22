@@ -4,7 +4,7 @@
     export let openState: Writable<boolean>
     export let closeOnOuterClick: boolean = true
 
-    let init: boolean = false
+    let init: boolean = true
     let fadeClass: string = ''
     let scaleClass: string = ''
     
@@ -131,6 +131,11 @@
 
             @media (max-width: 700px){
                 padding: 20px;
+                width: 90%;
+            }
+
+            @media (max-width: 450px){
+                width: 90%;
             }
         }
 

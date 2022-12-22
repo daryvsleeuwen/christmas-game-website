@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AccessTokenDto, PasswordReset, SignInDto, UserDto } from './dto';
+import { AccessTokenDto, SignInDto, UserDto } from './dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -24,10 +24,5 @@ export class AuthController {
   @Get('roles')
   getAllRoles() {
     return this.authService.getAllRoles();
-  }
-
-  @Post('password/reset')
-  resetPassword(@Body() data: PasswordReset) {
-    return this.authService.resetPassword(data.accessToken, data.newPassword);
   }
 }

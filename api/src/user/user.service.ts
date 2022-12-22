@@ -7,21 +7,6 @@ import { GameSettingsDto } from './dto';
 export class UserService {
     constructor(private prisma: PrismaService){}
 
-    async getUser(authUser: UserDto){
-        const user = await this.prisma.user.findUnique({
-            where: {
-                id: authUser.id
-            },
-            include: {
-                gameSettings: true
-            }
-        })
-    
-        if(!user) return { error:'We could not find a user' };
-        delete user.password
-        return user
-    }
-
     async updateSettings(authUser: UserDto, gameSettings: GameSettingsDto){
         const user = await this.prisma.user.update({
             where: {

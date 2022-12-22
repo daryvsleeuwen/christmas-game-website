@@ -21,7 +21,6 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'jwt-admin') {
     if (user === null) return false;
     if (user.role !== 'ADMIN') return false;
 
-    delete user.password;
     return user;
   }
 }

@@ -3,24 +3,21 @@
     import { user } from '../stores/user'
     import Button from "../components/button.svelte";
     import Popup from "../components/popup.svelte";
-    import { gameRulesPopup, alreadyPlayedPopup } from "../stores/popup";
+    import { gameRulesPopup, buyPremiumCheckoutPopup } from "../stores/popup";
 	import { isAuth } from "../auth/index";
+	import BuyPremiumPopup from "../components/buy-premium-popup.svelte";
 
     export let data: {gameRules: string[], diceInstructions: string[], hasAlreadyPlayed: boolean }
 
     onMount(async () =>{
         const authUser = await isAuth()
         user.set(authUser)
-
-        if (data.hasAlreadyPlayed && !user){
-            openAlreadyPlayedPopup()
-        }
     })
 
     const startNewGame = () =>{
-        if(data.hasAlreadyPlayed && !user){
+        if(data.hasAlreadyPlayed && !$user){
             closeGameRulesPopup()
-            openAlreadyPlayedPopup()
+            openPremiumCheckoutPopup()
         }
         else{
             window.location.href = '/game'
@@ -35,12 +32,12 @@
         gameRulesPopup.set(false)
     }
 
-    const openAlreadyPlayedPopup = () =>{
-        alreadyPlayedPopup.set(true)
+    const openPremiumCheckoutPopup = () =>{
+        buyPremiumCheckoutPopup.set(true)
     }
 
-    const closeAlreadyPlayedPopup= () =>{
-        alreadyPlayedPopup.set(false)
+    const closePremiumCheckoutPopup= () =>{
+        buyPremiumCheckoutPopup.set(false)
     }
 
     const buyPremium = () =>{
@@ -56,11 +53,10 @@
         <div class="call-to-actions">
             <Button title="Start het spel" type="secondary" onClick={startNewGame} margin={true}/>
             <Button title="Wat zijn de spelregels?" type="secondary" onClick={openGameRulesPopup} margin={true}/>
-            <Button title="Premium versie" type="primary" onClick={buyPremium} margin={true}>
-                <div slot="side-slot" class="premium-slot"><p>€1</p></div>
+            <Button title="Premium versie" type="primary" onClick={openPremiumCheckoutPopup} margin={true}>
+                <div slot="side-slot" class="premium-slot"><p>€2</p></div>
             </Button>
             <p class="premium-perk">+ Onbeperkt aantal rondes</p>
-            <p class="premium-perk">+ Eigen regels maken</p>
         </div>
     </div>
     
@@ -77,15 +73,17 @@
         </div>
     </Popup>
 
-    <Popup openState={alreadyPlayedPopup}>
+    <!-- <Popup openState={alreadyPlayedPopup}>
         <div slot="content" class="already-played__popup">
             <p class="already-played__title">Je hebt je gratis rondje op dit netwerk al gespeeld. Upgrade naar <b>Premium</b> om zoveel rondes te spelen als je wilt</p>
             <Button title="Premium versie" type="primary" onClick={buyPremium} margin={true} hoverEffect={false}>
-                <div slot="side-slot" class="premium-slot"><p>€1</p></div>
+                <div slot="side-slot" class="premium-slot"><p>€2</p></div>
             </Button>
             <Button title="Sluiten" type="secondary" onClick={closeAlreadyPlayedPopup} margin={false} hoverEffect={false}/>
         </div>
-    </Popup>
+    </Popup> -->
+
+    <BuyPremiumPopup />
 </div>
 
 <style lang="scss" scoped>
@@ -135,7 +133,7 @@
         .premium-perk{
             color: white;
             font-size: 16px;
-            font-weight: 300;
+            font-weight: 400;
             text-align: center;
             margin-top: -10px;
             margin-bottom: 15px;
@@ -153,7 +151,7 @@
 
             p{
                 margin: 0;
-                color: $green;
+                color: $green !important;
             }
         }
     }

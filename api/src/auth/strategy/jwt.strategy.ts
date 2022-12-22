@@ -19,8 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
 
     if (user === null) return false;
-
-    delete user.password;
     return user;
   }
 }
