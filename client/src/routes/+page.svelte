@@ -16,10 +16,7 @@
         user.set(authUser)
 
         const ipResponse = await axios.get('https://api.ipify.org/?format=json')
-        console.log(ipResponse.data.ip);
-        console.log(typeof ipResponse.data.ip);
-        
-        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: ipResponse.data.ip })    
+        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: ipResponse.data.ip })
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
     })
 
