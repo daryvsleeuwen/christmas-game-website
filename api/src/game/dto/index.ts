@@ -9,5 +9,7 @@ export class NewGameDto {
 }
 
 export class ClientIpDto{
+    @IsString()
+    @IsNotEmpty()
     clientIp: string
 }
