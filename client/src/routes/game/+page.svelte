@@ -33,7 +33,7 @@
         user.set(authUser)
         userInit = true
 
-	    const hasAlreadyPlayedResponse = await axios.post('game/already-played')
+	    const hasAlreadyPlayedResponse = await axios.get('game/already-played')
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
 
         if(hasAlreadyPlayed && !$user){

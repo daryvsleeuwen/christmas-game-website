@@ -15,7 +15,7 @@
         const authUser = await isAuth()
         user.set(authUser)
 
-        const hasAlreadyPlayedResponse = await axios.post('game/already-played')
+        const hasAlreadyPlayedResponse = await axios.get('game/already-played')
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
     })
 

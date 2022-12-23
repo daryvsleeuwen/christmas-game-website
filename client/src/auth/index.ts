@@ -7,7 +7,9 @@ export const isAuth = async () =>{
     
     const response = await axios.post('auth/is-auth', { accessToken: accessToken })
 
-    if (response.data){
+    if (response.data === '') return null
+    
+    if (response.data.accessToken){
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
     }
     

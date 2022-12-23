@@ -12,7 +12,7 @@ export class GameController {
     return this.gameService.getGameRules();
   }
 
-  @Post('already-played')
+  @Get('already-played')
   getHasAleadyPlayed(@Req() request: Request) {
     return this.gameService.hasAlreadyPlayed(request.socket.remoteAddress);
   }
