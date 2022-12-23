@@ -26,7 +26,7 @@
                     const accountResponse = await axios.post('auth/signup', { email: params.get('email'), stripeClientSecret: clientSecret })
 
                     if(accountResponse.data){
-
+                        window.localStorage.setItem('accessToken', accountResponse.data.accessToken)
                     }
                 }
             }   
