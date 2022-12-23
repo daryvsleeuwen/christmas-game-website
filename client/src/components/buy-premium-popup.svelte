@@ -42,6 +42,8 @@
         const paymentResponse = await axios.post('payment/intent/new')
 
         if(paymentResponse.data){
+            const baseUrl = import.meta.env.VITE_ENV === 'dev' ? 'http://localhost:5173' : 'https://kerstspel.dary-testing.nl'
+
             const {error} = await stripe.confirmIdealPayment(paymentResponse.data.clientSecret, {
                 payment_method: {
                     ideal: ideal,
@@ -49,7 +51,9 @@
                         name: email
                     },
                 },
-                return_url: `http://localhost:5173/betaling?email=${email}`,
+
+
+                return_url: `${baseUrl}/betaling?email=${email}`,
              });
         }
     }
