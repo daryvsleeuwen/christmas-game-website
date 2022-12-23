@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 @Injectable()
