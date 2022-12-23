@@ -13,7 +13,7 @@ const config = {
 	extensions: ['.svelte'],
 
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({ out: 'build' }),
 	}
 };
 
