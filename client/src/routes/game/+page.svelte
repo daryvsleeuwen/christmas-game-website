@@ -33,7 +33,8 @@
         user.set(authUser)
         userInit = true
 
-	    const hasAlreadyPlayedResponse = await axios.get('game/already-played')
+        const ipResponse = await axios.get('https://api.ipify.org/?format=json')
+        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: ipResponse.data.ip })
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
 
         if(hasAlreadyPlayed && !$user){
@@ -92,7 +93,8 @@
     }
 
     const saveGameSession = async () =>{
-        const session = await axios.post('game/new', { accessToken: $user?.accessToken })
+        const ipResponse = await axios.get('https://api.ipify.org/?format=json')
+        const session = await axios.post('game/new', { accessToken: $user?.accessToken, clientIp: ipResponse.data.ip })
     }
 
     const switchRound = () =>{

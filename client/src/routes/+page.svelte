@@ -15,7 +15,11 @@
         const authUser = await isAuth()
         user.set(authUser)
 
-        const hasAlreadyPlayedResponse = await axios.get('game/already-played')
+        const ipResponse = await axios.get('https://api.ipify.org/?format=json')
+        console.log(ipResponse.data.ip);
+        console.log(typeof ipResponse.data.ip);
+        
+        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: ipResponse.data.ip })    
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
     })
 
@@ -41,14 +45,6 @@
 
     const openPremiumCheckoutPopup = () =>{
         buyPremiumCheckoutPopup.set(true)
-    }
-
-    const closePremiumCheckoutPopup= () =>{
-        buyPremiumCheckoutPopup.set(false)
-    }
-
-    const buyPremium = () =>{
-
     }
 </script>
 

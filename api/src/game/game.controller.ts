@@ -1,7 +1,6 @@
 import { Controller, Post, Body, Get, Ip, Req } from '@nestjs/common';
 import { GameService } from './game.service';
-import { NewGameDto } from './dto';
-import { Request } from 'express';
+import { NewGameDto, ClientIpDto } from './dto';
 
 @Controller('api/game')
 export class GameController {
@@ -12,13 +11,13 @@ export class GameController {
     return this.gameService.getGameRules();
   }
 
-  @Get('already-played')
-  getHasAleadyPlayed(@Req() request: Request) {
-    return this.gameService.hasAlreadyPlayed(request.socket.remoteAddress);
+  @Post('already-played')
+  getHasAleadyPlayed(@Body() data: ClientIpDto) {
+    return this.gameService.hasAlreadyPlayed(data.clientIp);
   }
 
   @Post('new')
-  createNewGame(@Body() data: NewGameDto, @Req() request: Request) {
-    return this.gameService.createNewGame(request.socket.remoteAddress, data.accessToken);
+  createNewGame(@Body() data: NewGameDto) {
+    return this.gameService.createNewGame(data.clientIp, data.accessToken);
   }
 }
