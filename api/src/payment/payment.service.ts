@@ -4,11 +4,11 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 @Injectable()
 export class PaymentService {
-    constructor(){}
+    constructor(private config: ConfigService){}
 
     async createPaymentIntent(){
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: 2,
+            amount: Number(this.config.get('SUBSCRIPTION_AMOUNT')),
             currency: 'eur',
             payment_method_types: ['ideal'],
         });
