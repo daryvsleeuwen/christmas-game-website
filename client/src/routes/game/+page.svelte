@@ -177,7 +177,7 @@
             </div>
             <div class="flex-fill d-flex flex-column justify-content-between align-items-center">
                 <div>
-                    <p class="current-game-round">ronde {currentRound}</p>
+                    <p class="current-game-round">ronde {currentRound}/2</p>
                     {#if userInit }
                         <div class="game-timer{displayTimer ? '': ' game-timer--hidden'}">
                             <Timer minutes={$user === null ? 10 : $user.gameSettings.roundDuration} onFinish={() => {
