@@ -25,4 +25,9 @@ export class AuthController {
   getAllRoles() {
     return this.authService.getAllRoles();
   }
+
+  @Get('users')
+  getAllUsersInLength() {
+    return this.authService.getAllUsersInLength();
+  }
 }

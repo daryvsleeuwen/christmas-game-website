@@ -119,4 +119,10 @@ export class AuthService {
   async getAllRoles() {
     return ['ADMIN', 'USER'];
   }
+
+  async getAllUsersInLength(){
+    const users = await this.prisma.user.findMany()
+    if(!users) return 0
+    return users.length
+  }
 }
