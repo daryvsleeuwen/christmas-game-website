@@ -15,8 +15,17 @@
         const authUser = await isAuth()
         user.set(authUser)
 
-        const ipResponse = await axios.get('https://api.ipify.org/?format=json')
-        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: ipResponse.data.ip })
+        const ipResponse = await fetch("https://api.ipify.org/?format=json", {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const clientIpData = await ipResponse.json()
+        
+        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: clientIpData.ip })
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
     })
 
@@ -53,10 +62,12 @@
         <div class="call-to-actions">
             <Button title="Start het spel" type="secondary" onClick={startNewGame} margin={true}/>
             <Button title="Wat zijn de spelregels?" type="secondary" onClick={openGameRulesPopup} margin={true}/>
-            <Button title="Premium versie" type="primary" onClick={openPremiumCheckoutPopup} margin={true}>
-                <div slot="side-slot" class="premium-slot"><p>€2</p></div>
-            </Button>
-            <p class="premium-perk">+ Onbeperkt aantal rondes</p>
+            {#if !$user }
+                <Button title="Premium versie" type="primary" onClick={openPremiumCheckoutPopup} margin={true}>
+                    <div slot="side-slot" class="premium-slot"><p>€2</p></div>
+                </Button>
+                <p class="premium-perk">+ Onbeperkt aantal rondes</p>
+            {/if}
         </div>
     </div>
     

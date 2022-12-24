@@ -33,8 +33,17 @@
         user.set(authUser)
         userInit = true
 
-        const ipResponse = await axios.get('https://api.ipify.org/?format=json')
-        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: ipResponse.data.ip })
+        const ipResponse = await fetch("https://api.ipify.org/?format=json", {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const clientIpData = await ipResponse.json()
+
+        const hasAlreadyPlayedResponse = await axios.post('game/already-played', { clientIp: clientIpData.ip })
         hasAlreadyPlayed = hasAlreadyPlayedResponse.data
 
         if(hasAlreadyPlayed && !$user){
