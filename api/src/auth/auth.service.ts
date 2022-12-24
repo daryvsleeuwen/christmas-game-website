@@ -88,7 +88,7 @@ export class AuthService {
   async isAuth(accessToken: string) {
     const verified = await this.verifyToken(accessToken);
 
-    if (!verified) return false;
+    if (!verified) return null;
 
     const user = await this.prisma.user.findUnique({
       where: { id: verified.sub },
